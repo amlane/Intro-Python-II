@@ -1,6 +1,8 @@
+import textwrap
+
 from room import Room
 from player import Player
-import textwrap
+from item import Item
 
 # Declare all the rooms
 
@@ -47,6 +49,9 @@ room['treasure'].s_to = room['narrow']
 
 # Make a new player object that is currently in the 'outside' room.
 player = Player("Player 1", outside)
+machete = Item("machete", "a giant machete ax")
+room['outside'].items = [machete.name]
+
 
 # Write a loop that:
 #
@@ -60,16 +65,28 @@ player = Player("Player 1", outside)
 # If the user enters "q", quit the game.
 
 
+print("Welcome to the game! \nGrab items in the room and look for the treasure!")
+
+
 def changeRoom(direction):
     # checks to make sure
     if hasattr(player.room, direction + "_to"):
         newRoom = getattr(player.room, direction + "_to")
         player.room = newRoom
     else:
-        print("\nYou cannot go this way")
+        print("\n*** You cannot go this way ***")
 
 
-# LOOP
+def pickUpItem(index):
+    item = player.room.items[index - 1]
+    if item:
+        print("item exists")
+        player.items.append(item)
+        player.room.items.remove(item)
+    else:
+        print("item doesn't exist")
+
+    # LOOP
 while True:
 
     str = textwrap.fill(text=player.room.description, width=50)
@@ -77,17 +94,26 @@ while True:
     # Print current room name
     print(f"\nYou are in the {player.room.name}.")
     print(f"{str}...")
-    user_input = input(f"Which direction, {player.name}? ")
+    user_input = input(f"\nWhich direction, {player.name}? ")
 
     if user_input == "q":
         print("Goodbye")
         break
     elif "n" in user_input or "s" in user_input or "e" in user_input or "w" in user_input:
-        # player.room = player.room.n_to
         changeRoom(user_input)
-
-    # elif user_input == "e":
-    #     changeRoom(user_input)
-
+    elif user_input == "i":
+        print("\nInventory:")
+        if len(player.items) == 0:
+            print("No items in your inventory")
+        for i in range(len(player.items)):
+            print(f'{i + 1}) {player.items[i]}')
+    elif user_input == "c":
+        print("\nItems in room:")
+        if len(player.room.items) == 0:
+            print("No items in room")
+        for i in range(len(player.room.items)):
+            print(f"{i + 1}) {player.room.items[i]}")
+            item_input = int(input("Pick up an item by entering the number: "))
+            pickUpItem(item_input)
     else:
         print("\nInvalid selection.\n")
