@@ -23,6 +23,11 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
+overlook = room['overlook']
+foyer = room['foyer']
+outside = room['outside']
+treasure = room['treasure']
+narrow = room['narrow']
 
 # Link rooms together
 
@@ -36,18 +41,12 @@ room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
 
-overlook = room['overlook']
-foyer = room['foyer']
-outside = room['outside']
-treasure = room['treasure']
-narrow = room['narrow']
-
 #
 # Main
 #
 
 # Make a new player object that is currently in the 'outside' room.
-player = Player("Player 1", room["outside"])
+player = Player("Player 1", outside)
 
 # Write a loop that:
 #
@@ -59,21 +58,36 @@ player = Player("Player 1", room["outside"])
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
-wrapper = textwrap.TextWrapper(width=50)
-string = wrapper.fill(text=player.room.description)
+
+
+def changeRoom(direction):
+    # checks to make sure
+    if hasattr(player.room, direction + "_to"):
+        newRoom = getattr(player.room, direction + "_to")
+        player.room = newRoom
+    else:
+        print("\nYou cannot go this way")
+
 
 # LOOP
 while True:
-    # Print current room name
-    print(f"You are in the {player.room}.")
-    print(f"{string}...")
 
-    # READ
-    # take direction from user
-    user_input = input(f"Which direction, {player.name}? (n/s/e/w or q) ")
+    str = textwrap.fill(text=player.room.description, width=50)
+
+    # Print current room name
+    print(f"\nYou are in the {player.room.name}.")
+    print(f"{str}...")
+    user_input = input(f"Which direction, {player.name}? ")
 
     if user_input == "q":
         print("Goodbye")
         break
+    elif "n" in user_input or "s" in user_input or "e" in user_input or "w" in user_input:
+        # player.room = player.room.n_to
+        changeRoom(user_input)
+
+    # elif user_input == "e":
+    #     changeRoom(user_input)
+
     else:
-        print("Invalid selection.")
+        print("\nInvalid selection.\n")
