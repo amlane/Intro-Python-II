@@ -10,21 +10,21 @@ from lightSource import Light
 
 room = {
     'outside':  Room("Outside Cave Entrance",
-                     "North of you, the cave mount beckons"),
+                     "North of you, the cave mount beckons", True),
 
     'foyer':    Room("Foyer", """Dim light filters in from the south. Dusty
-passages run north and east."""),
+passages run north and east.""", False),
 
     'overlook': Room("Grand Overlook", """A steep cliff appears before you, falling
 into the darkness. Ahead to the north, a light flickers in
-the distance, but there is no way across the chasm."""),
+the distance, but there is no way across the chasm.""", True),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air."""),
+to north. The smell of gold permeates the air.""", True),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
 chamber! Sadly, it has already been completely emptied by
-earlier adventurers. The only exit is to the south."""),
+earlier adventurers. The only exit is to the south.""", True),
 }
 
 overlook = room['overlook']
@@ -53,13 +53,12 @@ room['treasure'].s_to = room['narrow']
 player = Player("Player 1", outside)
 machete = Item("machete", "a giant machete ax")
 axe = Item("axe", "a giant rusty axe")
-room['outside'].items = [machete, axe]
-
 apple = Food("apple", "a juicy red delicious", 15)
-room['foyer'].items = [apple]
-
 flashlight = Light(
     "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
+
+room['outside'].items = [machete, axe]
+room['foyer'].items = [apple]
 room['overlook'].items = [flashlight]
 
 
@@ -117,14 +116,22 @@ while True:
                 f'{i + 1}) {inventory[i].name}: {inventory[i].description}')
 
     elif user_input == "c" or user_input == "check":
-        print("\nItems in room:")
-        # if there are no items in the room
-        if len(room_items) == 0:
-            print("No items in room\n")
-        # prints list of room items
-        for i in range(len(room_items)):
-            print(
-                f"{i + 1}) {room_items[i].name}: {room_items[i].description}")
+        result = 0
+        for item in inventory:
+            if(item.name == "flashlight" and item.is_light_on == True):
+                result += 1
+
+        if player.room.is_light == True or result == 1:
+            print("\nItems in room:")
+            # if there are no items in the room
+            if len(room_items) == 0:
+                print("No items in room\n")
+            # prints list of room items
+            for i in range(len(room_items)):
+                print(
+                    f"{i + 1}) {room_items[i].name}: {room_items[i].description}")
+        else:
+            print("\nYou cannot see the items in this room without a light source!")
 
     elif len(cmd) == 2 and cmd[0] == "get" or cmd[0] == "take":
         userCurrentListLength = len(inventory)
