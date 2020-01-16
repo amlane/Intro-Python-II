@@ -135,16 +135,25 @@ while True:
 
     elif len(cmd) == 2 and cmd[0] == "get" or cmd[0] == "take":
         userCurrentListLength = len(inventory)
-        # check that item exists in the players current room
-        for item in room_items:
-            # if it does, add the item to the players items and remove it from the room items
-            if item.name == cmd[1]:
-                inventory.append(item)
-                room_items.remove(item)
-                item.onTake()
-        # if it doesn't, return an error message
-        if userCurrentListLength == len(inventory):
-            print(f"\nNo {cmd[1]} in this room.")
+        # check if light is on
+        result = 0
+        for item in inventory:
+            if(item.name == "flashlight" and item.is_light_on == True):
+                result += 1
+
+        if player.room.is_light == True or result == 1:
+            # check that item exists in the players current room
+            for item in room_items:
+                # if it does, add the item to the players items and remove it from the room items
+                if item.name == cmd[1]:
+                    inventory.append(item)
+                    room_items.remove(item)
+                    item.onTake()
+            # if it doesn't, return an error message
+            if userCurrentListLength == len(inventory):
+                print(f"\nNo {cmd[1]} in this room.")
+        else:
+            print("\nYou cannot pick up items in this room without a lightsource.")
 
     elif len(cmd) == 2 and cmd[0] == "drop":
         userCurrentListLength = len(inventory)
