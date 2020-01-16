@@ -71,6 +71,7 @@ print("\n********************* DIRECTIONS *********************\n")
 print("Select a direction: n, s, e, or w")
 print("Check your inventory: i")
 print("Check the room for items: c")
+print("Pick up an item with 'take' or 'get', Leave an item with 'drop'")
 print("Quit game: q")
 
 
@@ -129,6 +130,19 @@ while True:
         # if it doesn't, return an error message
         if userCurrentListLength == len(player.items):
             print(f"\nNo {cmd[1]} in this room.")
+
+    elif len(cmd) == 2 and cmd[0] == "drop":
+        userCurrentListLength = len(player.items)
+        # check that item exists in the players current room
+        for item in player.items:
+            # if it does, add the item to the players items and remove it from the room items
+            if item.name == cmd[1]:
+                player.room.items.append(item)
+                player.items.remove(item)
+                item.onDrop()
+        # if it doesn't, return an error message
+        if userCurrentListLength == len(player.items):
+            print(f"\nThere is no {cmd[1]} in your inventory.")
 
     elif user_input == "q":
         print("Goodbye")
