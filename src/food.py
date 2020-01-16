@@ -6,5 +6,8 @@ class Food(Item):
         super().__init__(name, description)
         self.energy = energy
 
+    def eat(self):
+        print(f"\nYou ate the {self.name}. Yum!")
+
     def __repr__(self):
         return self.name + " " + self.energy

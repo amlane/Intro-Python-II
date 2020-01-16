@@ -1,10 +1,12 @@
 import textwrap
+import random
 
 from room import Room
 from player import Player
 from item import Item
 from food import Food
 from lightSource import Light
+from zombie import Zombie
 
 # Declare all the rooms
 
@@ -56,10 +58,13 @@ axe = Item("axe", "a giant rusty axe")
 apple = Food("apple", "a juicy red delicious", 15)
 flashlight = Light(
     "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
+herman = Zombie("Herman", "a lurker zombie", 6, 10)
+
 
 room['outside'].items = [machete, axe]
 room['foyer'].items = [apple]
 room['overlook'].items = [flashlight]
+room['narrow'].items = [herman]
 
 
 # Write a loop that:
@@ -97,6 +102,7 @@ while True:
     str = textwrap.fill(text=player.room.description, width=50)
 
     # Print current room name
+    print(f"\nLife: {player.life}")
     print(f"\nYou are in the {player.room.name}.")
     print(f"{str}...")
     user_input = input(f"\nWhich direction, {player.name}? ")
@@ -118,7 +124,8 @@ while True:
     elif user_input == "c" or user_input == "check":
         result = 0
         for item in inventory:
-            if(item.name == "flashlight" and item.is_light_on == True):
+            if item.name == "flashlight" and item.is_light_on == True:
+                print(item.name)
                 result += 1
 
         if player.room.is_light == True or result == 1:
@@ -171,11 +178,41 @@ while True:
     elif user_input == "flashlight":
         result = 0
         for item in inventory:
-            if(item.name == "flashlight"):
+            if item.name == "flashlight":
                 result += 1
                 flashlight.toggleLight()
         if result == 0:
             print("\nYou don't have the flashlight in your inventory.")
+
+    elif len(cmd) == 2 and cmd[0] == "eat":
+        result = 0
+        for item in inventory:
+            if item.name == cmd[1]:
+                result += 1
+                item.eat()
+                player.life += item.energy
+                inventory.remove(item)
+        if result == 0:
+            print(f"\nThere is no {cmd[1]} in your inventory.")
+
+    elif len(cmd) == 2 and cmd[0] == "attack":
+        randomNum = random.randint(0, 100)
+        result = 0
+        print(randomNum)
+        for item in room_items:
+            if item.name == cmd[1]:
+                result += 1
+                item.attack()
+                if(randomNum > 50):
+                    player.life += (randomNum * item.size) // item.power
+                    print(
+                        f"You made a hit! \nYou gained {(randomNum * item.size) // item.power} life.")
+                else:
+                    player.life -= (randomNum * item.size) // item.power
+                    print(
+                        f"{item.name} blocked the blow. \nYou lost {(randomNum * item.size) // item.power} life.")
+        if result == 0:
+            print(f"\n{cmd[1]} is not in the room.")
 
     elif user_input == "q":
         print("Goodbye")

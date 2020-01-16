@@ -3,9 +3,10 @@
 
 
 class Player:
-    def __init__(self, name, room, items=[]):
+    def __init__(self, name, room, life=100, items=[]):
         self.name = name  # string
         self.room = room  # class
+        self.life = life  # int
         self.items = items  # list
 
     def __repr__(self):
