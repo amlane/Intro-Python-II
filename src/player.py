@@ -4,7 +4,7 @@ from room import Room
 
 
 class Player:
-    def __init__(self, name, room, life=50, items=[]):
+    def __init__(self, name, room, life=1, items=[]):
         self.name = name  # string
         self.room = room  # class
         self.life = life  # int
@@ -24,13 +24,6 @@ class Player:
         print("***                                  ***")
         print("****************************************")
         print("****************************************")
-        x = input("-> ")
-        if x == "y":
-            self.life = 50
-            self.room = startingRoom
-            self.items = []
-        elif x == "n":
-            print("Press q to exit the game.")
 
     def __repr__(self):
         return self.name + " Class"

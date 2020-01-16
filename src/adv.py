@@ -58,7 +58,7 @@ axe = Item("axe", "a giant rusty axe")
 apple = Food("apple", "a juicy red delicious", 15)
 flashlight = Light(
     "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
-joe = Zombie("Joe", "a lurker zombie", 6, 10)
+joe = Zombie("Joe", "a lurker zombie", "large", 20)
 
 
 room['outside'].items = [machete, axe]
@@ -100,21 +100,36 @@ def changeRoom(direction):
 while True:
 
     str = textwrap.fill(text=player.room.description, width=50)
-
+    # If the play is dead ask if they want to restart the game or quit the game
     if player.life <= 0:
         player.dies(outside)
+        x = input("-> ")
+        if x == "y":
+            player.room = outside
+            player.life = 50
+            player.items = []
+            room['outside'].items = [machete, axe]
+            room['foyer'].items = [apple]
+            room['overlook'].items = [flashlight]
+            room['narrow'].items = [joe]
+            continue
+        elif x == "n":
+            print("Press q to exit the game.")
+
     # Print current room name
     print(f"\nLife: {player.life}")
     print(f"\nYou are in the {player.room.name}.")
     print(f"{str}...")
     user_input = input(f"\nWhich direction, {player.name}? ")
+
     cmd = user_input.split(" ")
     room_items = player.room.items
     inventory = player.items
 
+    # CHANGE ROOM
     if user_input == "n" or user_input == "s" or user_input == "e" or user_input == "w":
         changeRoom(user_input)
-
+    # CHECK INVENTORY
     elif user_input == "i" or user_input == "inventory":
         print("\nInventory:")
         if len(inventory) == 0:
@@ -122,14 +137,14 @@ while True:
         for i in range(len(inventory)):
             print(
                 f'{i + 1}) {inventory[i].name}: {inventory[i].description}')
-
+    # CHECK ROOM ITEMS
     elif user_input == "c" or user_input == "check":
         result = 0
         for item in inventory:
             if item.name == "flashlight" and item.is_light_on == True:
                 print(item.name)
                 result += 1
-
+        # If lights are on or you have a light source that's on, print a list of items in room
         if player.room.is_light == True or result == 1:
             print("\nItems in room:")
             # if there are no items in the room
@@ -141,7 +156,7 @@ while True:
                     f"{i + 1}) {room_items[i].name}: {room_items[i].description}")
         else:
             print("\nYou cannot see the items in this room without a light source!")
-
+    # PICK UP ITEMS
     elif len(cmd) == 2 and cmd[0] == "get" or cmd[0] == "take":
         userCurrentListLength = len(inventory)
         # check if light is on
@@ -163,7 +178,7 @@ while True:
                 print(f"\nNo {cmd[1]} in this room.")
         else:
             print("\nYou cannot pick up items in this room without a lightsource.")
-
+    # DROP ITEMS
     elif len(cmd) == 2 and cmd[0] == "drop":
         userCurrentListLength = len(inventory)
         # check that item exists in the players current room
@@ -176,7 +191,7 @@ while True:
         # if it doesn't, return an error message
         if userCurrentListLength == len(inventory):
             print(f"\nThere is no {cmd[1]} in your inventory.")
-
+    # TOGGLE LIGHT
     elif user_input == "flashlight":
         result = 0
         for item in inventory:
@@ -185,7 +200,7 @@ while True:
                 flashlight.toggleLight()
         if result == 0:
             print("\nYou don't have the flashlight in your inventory.")
-
+    # EAT
     elif len(cmd) == 2 and cmd[0] == "eat":
         result = 0
         for item in inventory:
@@ -196,35 +211,31 @@ while True:
                 inventory.remove(item)
         if result == 0:
             print(f"\nThere is no {cmd[1]} in your inventory.")
-
+    # ATTACK
     elif len(cmd) == 2 and cmd[0] == "attack":
-        randomNum = random.randint(0, 25)
+        randomNum = random.randint(0, 15)
         result = 0
         print(randomNum)
         for zombie in room_items:
             if zombie.name == cmd[1]:
                 result += 1
                 zombie.attack()
-                if(randomNum > 50):
-                    player.life += (randomNum * zombie.size) // zombie.power
-                    zombie.power += (randomNum * zombie.size) // zombie.power
+                if(randomNum >= 10):
+                    player.life += randomNum
+                    zombie.power -= randomNum
                     print(
-                        f"You made a hit! \nYou gained {(randomNum * zombie.size) // zombie.power} life.")
-                    if zombie.power <= 0:
-                        zombie.dies()
-                        inventory.remove(zombie)
-                    else:
-                        print(f"Zombie has {zombie.power} power left.")
-                else:
-                    player.life -= (randomNum * zombie.size) // zombie.power
-                    zombie.power -= (randomNum * zombie.size) // zombie.power
-                    print(
-                        f"{zombie.name} blocked the blow. \nYou lost {(randomNum * zombie.size) // zombie.power} life.")
+                        f"You made a hit! \nYou gained {randomNum} life.")
                     if zombie.power <= 0:
                         zombie.dies()
                         room_items.remove(zombie)
                     else:
                         print(f"Zombie has {zombie.power} power left.")
+                else:
+                    player.life -= randomNum
+                    zombie.power += randomNum
+                    print(
+                        f"{zombie.name} blocked the blow. \nYou lost {randomNum} life.")
+                    print(f"{zombie.name} has {zombie.power} power left.")
         if result == 0:
             print(f"\n{cmd[1]} is not in the room.")
 
