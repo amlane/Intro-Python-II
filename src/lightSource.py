@@ -14,7 +14,7 @@ class Light(Item):
             print(f"\nYou turned the {self.name} off")
 
     def onTake(self):
-        print(f"\nYou picked up the {self.name}. \nTry: 'turn on flashlight'")
+        print(f"\nYou picked up the {self.name}. \nTry: '{self.name}' to use.")
 
     def onDrop(self):
         print(f"\nIt's not wise to drop your source of light!")

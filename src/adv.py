@@ -59,7 +59,7 @@ apple = Food("apple", "a juicy red delicious", 15)
 room['foyer'].items = [apple]
 
 flashlight = Light(
-    "flashlight", "a flashlight to guide you through dark rooms", False)
+    "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
 room['overlook'].items = [flashlight]
 
 
@@ -78,14 +78,13 @@ print("******************************************************")
 print("\n            Welcome to Treasure Hunt 5000! \nGrab items from the rooms as you look for the treasure!")
 print("\n********************* DIRECTIONS *********************\n")
 print("Select a direction: n, s, e, or w")
-print("Check your inventory: i")
-print("Check the room for items: c")
+print("Check your inventory: i or inventory")
+print("Check the room for items: c or check")
 print("Pick up an item with 'take' or 'get', Leave an item with 'drop'")
 print("Quit game: q")
 
 
 def changeRoom(direction):
-    # checks to make sure
     if hasattr(player.room, direction + "_to"):
         newRoom = getattr(player.room, direction + "_to")
         player.room = newRoom
@@ -93,7 +92,7 @@ def changeRoom(direction):
         print("\n*** You cannot go this way ***")
 
 
-    # LOOP
+# LOOP
 while True:
 
     str = textwrap.fill(text=player.room.description, width=50)
@@ -109,7 +108,7 @@ while True:
     if user_input == "n" or user_input == "s" or user_input == "e" or user_input == "w":
         changeRoom(user_input)
 
-    elif user_input == "i":
+    elif user_input == "i" or user_input == "inventory":
         print("\nInventory:")
         if len(inventory) == 0:
             print("No items in your inventory")
@@ -117,7 +116,7 @@ while True:
             print(
                 f'{i + 1}) {inventory[i].name}: {inventory[i].description}')
 
-    elif user_input == "c":
+    elif user_input == "c" or user_input == "check":
         print("\nItems in room:")
         # if there are no items in the room
         if len(room_items) == 0:
@@ -146,15 +145,22 @@ while True:
         for item in inventory:
             # if it does, add the item to the players items and remove it from the room items
             if item.name == cmd[1]:
-                player.room.items.append(item)
+                room_items.append(item)
                 inventory.remove(item)
                 item.onDrop()
         # if it doesn't, return an error message
         if userCurrentListLength == len(inventory):
             print(f"\nThere is no {cmd[1]} in your inventory.")
 
-    elif len(cmd) == 3 and cmd[0] == "turn":
-        flashlight.toggleLight()
+    elif user_input == "flashlight":
+        result = 0
+        for item in inventory:
+            if(item.name == "flashlight"):
+                result += 1
+                flashlight.toggleLight()
+        if result == 0:
+            print("\nYou don't have the flashlight in your inventory.")
+
     elif user_input == "q":
         print("Goodbye")
         break
