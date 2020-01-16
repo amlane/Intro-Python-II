@@ -78,13 +78,13 @@ def changeRoom(direction):
 
 
 def pickUpItem(index):
-    item = player.room.items[index - 1]
-    if item:
-        print("item exists")
+    if index >= 0 and index <= len(player.room.items):
+        item = player.room.items[index - 1]
         player.items.append(item)
         player.room.items.remove(item)
+        print(f"\nYou picked up a {player.items[0]}")
     else:
-        print("item doesn't exist")
+        print("\nItem doesn't exist")
 
     # LOOP
 while True:
@@ -113,7 +113,8 @@ while True:
             print("No items in room")
         for i in range(len(player.room.items)):
             print(f"{i + 1}) {player.room.items[i]}")
-            item_input = int(input("Pick up an item by entering the number: "))
-            pickUpItem(item_input)
+        item_input = int(input("Pick up an item by entering the number: "))
+        pickUpItem(item_input)
+
     else:
         print("\nInvalid selection.\n")
