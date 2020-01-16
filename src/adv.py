@@ -7,6 +7,7 @@ from item import Item
 from food import Food
 from lightSource import Light
 from zombie import Zombie
+from weapon import Weapon
 
 # Declare all the rooms
 
@@ -53,8 +54,8 @@ room['treasure'].s_to = room['narrow']
 
 # Make a new player object that is currently in the 'outside' room.
 player = Player(input("Enter your name -> ").capitalize(), outside)
-machete = Item("machete", "a giant machete ax")
-axe = Item("axe", "a giant rusty axe")
+machete = Weapon("machete", "a giant machete ax", 15)
+axe = Weapon("axe", "a giant rusty axe", 8)
 apple = Food("apple", "a juicy red delicious", 15)
 flashlight = Light(
     "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
@@ -98,6 +99,10 @@ directions = ["n", "s", "e", "w"]
 while True:
     room_items = player.room.items
     inventory = player.items
+    weapons = [w for w in inventory if hasattr(w, "damage")]
+    food = [f for f in inventory if hasattr(f, "energy")]
+    monsters = [m for m in room_items if hasattr(m, "power")]
+
     # If the play is dead ask if they want to restart the game or quit the game
     if player.life <= 0:
         player.dies()
@@ -168,7 +173,7 @@ while True:
             # check that item exists in the players current room
             for item in room_items:
                 # if it does, add the item to the players items and remove it from the room items
-                if item.name == cmd[1]:
+                if item.name.lower() == cmd[1]:
                     inventory.append(item)
                     room_items.remove(item)
                     item.onTake()
@@ -183,7 +188,7 @@ while True:
         # check that item exists in the players current room
         for item in inventory:
             # if it does, add the item to the players items and remove it from the room items
-            if item.name == cmd[1]:
+            if item.name.lower() == cmd[1]:
                 room_items.append(item)
                 inventory.remove(item)
                 item.onDrop()
@@ -202,21 +207,21 @@ while True:
     # EAT
     elif len(cmd) == 2 and cmd[0] == "eat":
         result = 0
-        for item in inventory:
+        for item in food:
             if item.name == cmd[1]:
                 result += 1
                 item.eat()
                 player.life += item.energy
                 inventory.remove(item)
         if result == 0:
-            print(f"\nThere is no {cmd[1]} in your inventory.")
+            print(f"\nYou cannot eat {cmd[1]}.")
     # ATTACK
     elif len(cmd) == 2 and cmd[0] == "attack":
         player.attack(cmd[1])
         randomNum = random.randint(0, 15)
         result = 0
-        for zombie in room_items:
-            if zombie.name.lower() == cmd[1] and hasattr(zombie, "power"):
+        for zombie in monsters:
+            if zombie.name.lower() == cmd[1]:
                 result += 1
                 if(randomNum >= 10):
                     player.life += randomNum

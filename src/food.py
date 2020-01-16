@@ -10,4 +10,4 @@ class Food(Item):
         print(f"\nYou ate the {self.name}. Yum!")
 
     def __repr__(self):
-        return self.name + " " + self.energy
+        return f"{self. name} {self. energy}"
