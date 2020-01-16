@@ -10,5 +10,20 @@ class Zombie(Item):
     def attack(self):
         print(f"\nYou take a risk and attack {self.name}")
 
+    def dies(self):
+        print("****************************************")
+        print("****************************************")
+        print("***                                  ***")
+        print("***                                  ***")
+        print("***                                  ***")
+        print("***                                  ***")
+        print(f"***            {self.name} is dead.          ***")
+        print("***                                  ***")
+        print("***                                  ***")
+        print("***                                  ***")
+        print("***                                  ***")
+        print("****************************************")
+        print("****************************************")
+
     def __repr__(self):
         return self.name + " Class"

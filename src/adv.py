@@ -22,7 +22,7 @@ into the darkness. Ahead to the north, a light flickers in
 the distance, but there is no way across the chasm.""", True),
 
     'narrow':   Room("Narrow Passage", """The narrow passage bends here from west
-to north. The smell of gold permeates the air.""", True),
+to north. The smell of gold permeates the air.""", False),
 
     'treasure': Room("Treasure Chamber", """You've found the long-lost treasure
 chamber! Sadly, it has already been completely emptied by
@@ -58,13 +58,13 @@ axe = Item("axe", "a giant rusty axe")
 apple = Food("apple", "a juicy red delicious", 15)
 flashlight = Light(
     "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
-herman = Zombie("Herman", "a lurker zombie", 6, 10)
+joe = Zombie("Joe", "a lurker zombie", 6, 10)
 
 
 room['outside'].items = [machete, axe]
 room['foyer'].items = [apple]
 room['overlook'].items = [flashlight]
-room['narrow'].items = [herman]
+room['narrow'].items = [joe]
 
 
 # Write a loop that:
@@ -101,6 +101,8 @@ while True:
 
     str = textwrap.fill(text=player.room.description, width=50)
 
+    if player.life <= 0:
+        player.dies(outside)
     # Print current room name
     print(f"\nLife: {player.life}")
     print(f"\nYou are in the {player.room.name}.")
@@ -196,21 +198,33 @@ while True:
             print(f"\nThere is no {cmd[1]} in your inventory.")
 
     elif len(cmd) == 2 and cmd[0] == "attack":
-        randomNum = random.randint(0, 100)
+        randomNum = random.randint(0, 25)
         result = 0
         print(randomNum)
-        for item in room_items:
-            if item.name == cmd[1]:
+        for zombie in room_items:
+            if zombie.name == cmd[1]:
                 result += 1
-                item.attack()
+                zombie.attack()
                 if(randomNum > 50):
-                    player.life += (randomNum * item.size) // item.power
+                    player.life += (randomNum * zombie.size) // zombie.power
+                    zombie.power += (randomNum * zombie.size) // zombie.power
                     print(
-                        f"You made a hit! \nYou gained {(randomNum * item.size) // item.power} life.")
+                        f"You made a hit! \nYou gained {(randomNum * zombie.size) // zombie.power} life.")
+                    if zombie.power <= 0:
+                        zombie.dies()
+                        inventory.remove(zombie)
+                    else:
+                        print(f"Zombie has {zombie.power} power left.")
                 else:
-                    player.life -= (randomNum * item.size) // item.power
+                    player.life -= (randomNum * zombie.size) // zombie.power
+                    zombie.power -= (randomNum * zombie.size) // zombie.power
                     print(
-                        f"{item.name} blocked the blow. \nYou lost {(randomNum * item.size) // item.power} life.")
+                        f"{zombie.name} blocked the blow. \nYou lost {(randomNum * zombie.size) // zombie.power} life.")
+                    if zombie.power <= 0:
+                        zombie.dies()
+                        room_items.remove(zombie)
+                    else:
+                        print(f"Zombie has {zombie.power} power left.")
         if result == 0:
             print(f"\n{cmd[1]} is not in the room.")
 
