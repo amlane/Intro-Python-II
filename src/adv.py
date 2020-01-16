@@ -118,14 +118,17 @@ while True:
                 f"{i + 1}) {player.room.items[i].name}: {player.room.items[i].description}")
 
     elif len(cmd) == 2 and cmd[0] == "get" or cmd[0] == "take":
+        userCurrentListLength = len(player.items)
         # check that item exists in the players current room
         for item in player.room.items:
+            # if it does, add the item to the players items and remove it from the room items
             if item.name == cmd[1]:
                 player.items.append(item)
                 player.room.items.remove(item)
                 item.onTake()
-        # if it does, add the item to the players items and remove it from the room items
         # if it doesn't, return an error message
+        if userCurrentListLength == len(player.items):
+            print(f"\nNo {cmd[1]} in this room.")
 
     elif user_input == "q":
         print("Goodbye")
