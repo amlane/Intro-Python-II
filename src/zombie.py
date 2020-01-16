@@ -8,7 +8,7 @@ class Zombie(Item):
         self.power = power
 
     def attack(self):
-        print(f"\nYou take a risk and attack {self.name}")
+        print(f"\n{self.name} comes towards you to attack.")
 
     def dies(self):
         print("****************************************")

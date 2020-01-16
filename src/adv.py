@@ -52,16 +52,21 @@ room['treasure'].s_to = room['narrow']
 #
 
 # Make a new player object that is currently in the 'outside' room.
-player = Player("Player 1", outside)
+player = Player(input("Enter your name -> ").capitalize(), outside)
 machete = Item("machete", "a giant machete ax")
 axe = Item("axe", "a giant rusty axe")
 apple = Food("apple", "a juicy red delicious", 15)
 flashlight = Light(
     "flashlight", "A flashlight to guide you through dark rooms. \n* Use with the [flashlight] command", False)
-joe = Zombie("Joe", "a lurker zombie", "large", 20)
+joe = Zombie(
+    "Joe", "A lurker zombie. \nUse [attack] command with my name.", "medium", 20)
+steve = Zombie(
+    "Steve", "A dumb zombie. \nUse [attack] command with my name.", "large", 18)
+bob = Zombie(
+    "Bob", "A big zombie. \nUse [attack] command with my name.", "x-large", 23)
 
 
-room['outside'].items = [machete, axe]
+room['outside'].items = [machete, axe, steve, bob]
 room['foyer'].items = [apple]
 room['overlook'].items = [flashlight]
 room['narrow'].items = [joe]
@@ -84,29 +89,22 @@ print("\n********************* DIRECTIONS *********************\n")
 print("Select a direction: n, s, e, or w")
 print("Check your inventory: i or inventory")
 print("Check the room for items: c or check")
-print("Pick up an item with 'take' or 'get', Leave an item with 'drop'")
+print("Other available commands: take, get, attack and eat [item]")
 print("Quit game: q")
 
-
-def changeRoom(direction):
-    if hasattr(player.room, direction + "_to"):
-        newRoom = getattr(player.room, direction + "_to")
-        player.room = newRoom
-    else:
-        print("\n*** You cannot go this way ***")
-
+directions = ["n", "s", "e", "w"]
 
 # LOOP
 while True:
-
-    str = textwrap.fill(text=player.room.description, width=50)
+    room_items = player.room.items
+    inventory = player.items
     # If the play is dead ask if they want to restart the game or quit the game
     if player.life <= 0:
-        player.dies(outside)
+        player.dies()
         x = input("-> ")
         if x == "y":
             player.room = outside
-            player.life = 50
+            player.life = 15
             player.items = []
             room['outside'].items = [machete, axe]
             room['foyer'].items = [apple]
@@ -115,20 +113,31 @@ while True:
             continue
         elif x == "n":
             print("Press q to exit the game.")
+    # checks if flashlight is on
+
+    def is_flashlight_on():
+        result = 0
+        for item in inventory:
+            if item.name == "flashlight" and item.is_light_on == True:
+                result += 1
+        if result == 0:
+            return False
+        else:
+            return True
 
     # Print current room name
     print(f"\nLife: {player.life}")
     print(f"\nYou are in the {player.room.name}.")
+    str = textwrap.fill(text=player.room.description, width=50)
     print(f"{str}...")
-    user_input = input(f"\nWhich direction, {player.name}? ")
+
+    user_input = input(f"\nWhich direction, {player.name}? ").lower()
 
     cmd = user_input.split(" ")
-    room_items = player.room.items
-    inventory = player.items
 
     # CHANGE ROOM
-    if user_input == "n" or user_input == "s" or user_input == "e" or user_input == "w":
-        changeRoom(user_input)
+    if user_input in directions:
+        player.travelRooms(player.room, user_input)
     # CHECK INVENTORY
     elif user_input == "i" or user_input == "inventory":
         print("\nInventory:")
@@ -139,13 +148,8 @@ while True:
                 f'{i + 1}) {inventory[i].name}: {inventory[i].description}')
     # CHECK ROOM ITEMS
     elif user_input == "c" or user_input == "check":
-        result = 0
-        for item in inventory:
-            if item.name == "flashlight" and item.is_light_on == True:
-                print(item.name)
-                result += 1
         # If lights are on or you have a light source that's on, print a list of items in room
-        if player.room.is_light == True or result == 1:
+        if player.room.is_light == True or is_flashlight_on():
             print("\nItems in room:")
             # if there are no items in the room
             if len(room_items) == 0:
@@ -160,12 +164,7 @@ while True:
     elif len(cmd) == 2 and cmd[0] == "get" or cmd[0] == "take":
         userCurrentListLength = len(inventory)
         # check if light is on
-        result = 0
-        for item in inventory:
-            if(item.name == "flashlight" and item.is_light_on == True):
-                result += 1
-
-        if player.room.is_light == True or result == 1:
+        if player.room.is_light == True or is_flashlight_on():
             # check that item exists in the players current room
             for item in room_items:
                 # if it does, add the item to the players items and remove it from the room items
@@ -213,13 +212,12 @@ while True:
             print(f"\nThere is no {cmd[1]} in your inventory.")
     # ATTACK
     elif len(cmd) == 2 and cmd[0] == "attack":
+        player.attack(cmd[1])
         randomNum = random.randint(0, 15)
         result = 0
-        print(randomNum)
         for zombie in room_items:
-            if zombie.name == cmd[1]:
+            if zombie.name.lower() == cmd[1] and hasattr(zombie, "power"):
                 result += 1
-                zombie.attack()
                 if(randomNum >= 10):
                     player.life += randomNum
                     zombie.power -= randomNum
@@ -229,15 +227,16 @@ while True:
                         zombie.dies()
                         room_items.remove(zombie)
                     else:
-                        print(f"Zombie has {zombie.power} power left.")
+                        print(f"{zombie.name} has {zombie.power} power left.")
                 else:
                     player.life -= randomNum
                     zombie.power += randomNum
                     print(
                         f"{zombie.name} blocked the blow. \nYou lost {randomNum} life.")
                     print(f"{zombie.name} has {zombie.power} power left.")
+
         if result == 0:
-            print(f"\n{cmd[1]} is not in the room.")
+            print(f"\n'attack {cmd[1]}' is not a valid command.")
 
     elif user_input == "q":
         print("Goodbye")
