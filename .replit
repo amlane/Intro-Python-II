@@ -1,2 +1,2 @@
 language = "python3"
-run = "run game"
+run = "python src/adv.py"
