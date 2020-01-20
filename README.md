@@ -1,5 +1,3 @@
-[![Run on Repl.it](https://repl.it/badge/github/amlane/Intro-Python-II)](https://repl.it/github/amlane/Intro-Python-II)
-
 # Intro to Python II
 
 Up to this point, you've gotten your feet wet by working on a bunch of small Python programs. In this module, we're going to continue to solidify your Python chops by implementing a full-featured project according to a provided specification.
